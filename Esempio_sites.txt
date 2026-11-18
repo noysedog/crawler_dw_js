@@ -1,0 +1,17 @@
+# Lista siti da crawlare per JavaScript
+# Un URL per riga - Le righe che iniziano con # sono commenti
+
+# Esempi di siti per test (sostituisci con i tuoi target autorizzati)
+https://example.com
+https://testsite.local
+https://dev.mycompany.com
+
+# Siti con molti JS per test
+https://jquery.com
+https://getbootstrap.com
+
+# Aggiungi qui i tuoi siti target
+*.atg.se
+www.atg.se
+api.atg.se
+iam.atg.se

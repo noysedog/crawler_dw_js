@@ -1,0 +1,7 @@
+--sites-file, -f      # File lista siti (default: sites.txt)
+--output-dir, -o      # Directory output (default: js_downloads)
+--max-depth, -d       # Profondità crawling (default: 2)
+--delay               # Delay tra richieste (default: 1.0s)
+--max-file-size       # Dimensione max file (default: 10MB)
+--no-robots           # Ignora robots.txt
+--single-site, -s     # Crawla singolo sito

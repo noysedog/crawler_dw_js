@@ -1,0 +1,17 @@
+# Lista siti da crawlare per JavaScript
+# Un URL per riga - Le righe che iniziano con # sono commenti
+
+# ATTENZIONE: Crawla solo siti per cui hai autorizzazione!
+# Esempi per test (sostituisci con i tuoi target autorizzati)
+# https://example.com
+
+# Aggiungi qui i tuoi siti target
+# https://your-authorized-site.com
+
+
+#*.atg.se
+#https://www.atg.se
+#https://api.atg.se
+#https://iam.atg.se
+
+https://www.ferlandia.it

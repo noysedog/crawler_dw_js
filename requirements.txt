@@ -1,0 +1,5 @@
+# Dipendenze Python per JS Crawler v2
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+urllib3>=1.26.0
+lxml>=4.9.0  # parser HTML piu' veloce; se manca il crawler usa html.parser
