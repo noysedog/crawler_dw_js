@@ -1,0 +1,19 @@
+# Correzioni di severita'/confidenza per id di regola (valgono anche per le regole di gitleaks).
+# Servono a non gridare "critico" per chiavi che sono pubbliche per design.
+
+[overrides.gcp-api-key]
+severity = "info"
+confidence = "medium"
+note = "Chiave API Google: spesso pubblica per design (Maps, Firebase). Verifica se ha restrizioni (referrer/API abilitate)."
+
+[overrides.google-api-key]
+severity = "info"
+confidence = "medium"
+note = "Chiave API Google: spesso pubblica per design (Maps, Firebase). Verifica se ha restrizioni (referrer/API abilitate)."
+
+[overrides.stripe-publishable-key]
+severity = "info"
+note = "Chiave pubblicabile Stripe: non e' un segreto."
+
+[overrides.generic-api-key]
+confidence = "low"

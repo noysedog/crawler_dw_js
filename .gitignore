@@ -1,3 +1,4 @@
 *.sublime-*
 js_downloads/
 sites.txt
+__pycache__/

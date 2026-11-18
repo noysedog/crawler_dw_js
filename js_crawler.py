@@ -953,6 +953,7 @@ class JSCrawler:
         summary = {
             "tool": f"js_crawler {VERSION}",
             "site": seed,
+            "site_dir": str(st.site_dir),
             "scope": st.scope,
             "started": started,
             "finished": now_iso(),
@@ -1051,10 +1052,27 @@ def build_parser() -> argparse.ArgumentParser:
     net.add_argument("--insecure", action="store_true", help="non verificare i certificati TLS")
     net.add_argument("--user-agent", default=DEFAULT_UA, help="User-Agent")
 
+    ana = p.add_argument_group("analisi")
+    ana.add_argument("--analyze", action="store_true", help="a fine crawl analizza i JS con js_analyzer.py (segreti ed endpoint)")
+    ana.add_argument("--rules-dir", help="cartella delle regole per l'analisi (default: rules/ accanto a js_analyzer.py)")
+
     p.add_argument("--keep-suspicious", action="store_true", help="salva in _suspicious/ le risposte che sembrano HTML invece di scartarle")
     p.add_argument("-v", "--verbose", action="store_true", help="log di debug sulla console")
     p.add_argument("-q", "--quiet", action="store_true", help="solo warning ed errori sulla console")
     return p
+
+
+def run_analysis(summary: dict, rules_dir, log: logging.Logger) -> None:
+    """Passa i file scaricati a js_analyzer.py (deve stare nella stessa cartella)."""
+    try:
+        import js_analyzer
+    except ImportError:
+        log.error("--analyze richiede js_analyzer.py nella stessa cartella di js_crawler.py")
+        return
+    try:
+        js_analyzer.analyze_from_crawler(Path(summary["site_dir"]), rules_dir, log)
+    except Exception:  # l'analisi non deve far perdere il crawl
+        log.exception("Errore durante l'analisi (i file scaricati sono intatti: rilancia js_analyzer.py)")
 
 
 def main(argv=None) -> int:
@@ -1105,7 +1123,9 @@ def main(argv=None) -> int:
         for i, target in enumerate(targets, 1):
             log.info("Target %d/%d: %s", i, len(targets), target.raw)
             try:
-                crawler.crawl_target(target, output_dir)
+                summary = crawler.crawl_target(target, output_dir)
+                if args.analyze:
+                    run_analysis(summary, args.rules_dir, log)
             except KeyboardInterrupt:
                 raise
             except Exception:

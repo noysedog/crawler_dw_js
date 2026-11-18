@@ -1,5 +1,7 @@
-# Dipendenze Python per JS Crawler v2
+# Dipendenze Python per JS Crawler v2 + JS Analyzer
 requests>=2.28.0
 beautifulsoup4>=4.11.0
 urllib3>=1.26.0
-lxml>=4.9.0  # parser HTML piu' veloce; se manca il crawler usa html.parser
+lxml>=4.9.0              # parser HTML piu' veloce; se manca il crawler usa html.parser
+tomli>=2.0; python_version < "3.11"   # lettura dei file di regole .toml (da 3.11 e' nella stdlib)
+regex>=2023.0            # opzionale ma consigliato: compila le regole gitleaks con \p{..} e classi POSIX

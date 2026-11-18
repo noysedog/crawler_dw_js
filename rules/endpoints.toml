@@ -1,0 +1,106 @@
+# Regole per ENDPOINT, URL, infrastruttura e GraphQL.
+# kind = "endpoint" | "url" | "infra" | "graphql"
+# Gruppi nominati usati dal motore: (?P<url>...) valore, (?P<method>...) metodo HTTP,
+# (?P<fn>...) nome della funzione chiamata. window_method = true: cerca method:/type: dopo la chiamata.
+
+[[rules]]
+id = "http-call"
+kind = "endpoint"
+description = "Chiamate fetch/axios/jQuery/XHR con URL letterale"
+regex = '''(?<![\w$])(?P<fn>fetch|axios(?:\.(?:get|post|put|patch|delete|head|options|request))?|(?:\$|jQuery)\.(?:ajax|get|post|getJSON)|\$http\.(?:get|post|put|patch|delete)|(?:http|httpClient|client|api|request)\.(?:get|post|put|patch|delete))\(\s*(?P<q>[`"\x27])(?P<url>(?:\\.|(?!(?P=q)).){1,300})(?P=q)'''
+keywords = ["fetch", "axios", "ajax", "http", "client", "api", "request", "jquery", "$."]
+window_method = true
+
+[[rules]]
+id = "xhr-open"
+kind = "endpoint"
+description = "XMLHttpRequest.open(metodo, url)"
+regex = '''\.open\(\s*[`"\x27](?P<method>GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)[`"\x27]\s*,\s*(?P<q>[`"\x27])(?P<url>(?:\\.|(?!(?P=q)).){1,300})(?P=q)'''
+keywords = [".open("]
+
+[[rules]]
+id = "url-property"
+kind = "endpoint"
+description = "Proprieta url/endpoint/baseURL con valore letterale"
+regex = '''\b(?:url|endpoint|baseURL|baseUrl|apiUrl|apiURL|api_url|uri)\s*[:=]\s*(?P<q>[`"\x27])(?P<url>(?:/|https?://|wss?://)(?:\\.|(?!(?P=q)).){1,300})(?P=q)'''
+keywords = ["url", "endpoint", "uri"]
+window_method = true
+
+[[rules]]
+id = "api-path"
+kind = "endpoint"
+description = "Percorsi che sembrano API (/api, /v1, /graphql, /auth, /admin...)"
+regex = '''(?P<q>[`"\x27])(?P<url>/(?:api|rest|graphql|gql|auth|oauth2?|sso|admin|internal|rpc|actuator|swagger|v\d{1,2}|_next/data|\.well-known)(?:[/?][^`"\x27\s<>\\]{0,250})?)(?P=q)'''
+keywords = ["/api", "/rest", "/graphql", "/gql", "/auth", "/oauth", "/sso", "/admin", "/internal", "/rpc", "/actuator", "/swagger", "/v", "/_next/data", "/.well-known"]
+
+[[rules]]
+id = "url-absolute"
+kind = "url"
+description = "URL assoluti http(s)/ws(s) dentro stringhe"
+regex = '''(?P<q>[`"\x27])(?P<url>(?:https?|wss?)://[A-Za-z0-9._~:@%-]+(?:/[^`"\x27\s<>\\]{0,250})?)(?P=q)'''
+keywords = ["://"]
+exclude_hosts = ["w3.org", "schema.org", "github.com", "githubusercontent.com", "npmjs.org", "npmjs.com", "reactjs.org", "react.dev", "fb.me", "mozilla.org", "apache.org", "ietf.org", "example.com", "example.org", "fonts.googleapis.com", "fonts.gstatic.com", "gstatic.com", "google.com", "google-analytics.com", "googletagmanager.com", "facebook.com", "facebook.net", "twitter.com", "youtube.com"]
+
+[[rules]]
+id = "internal-host"
+kind = "url"
+description = "Host interni, di staging o di test"
+severity = "medium"
+confidence = "low"
+regex = '''(?P<q>[`"\x27])(?P<url>(?:https?|wss?)://(?:localhost|127\.0\.0\.1|0\.0\.0\.0|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|(?:[A-Za-z0-9-]+\.)+(?:internal|local|corp|lan|intra)|(?:[A-Za-z0-9-]+\.)*(?:[A-Za-z0-9]+-)?(?:staging|stage|uat|dev|test|qa|preprod|sandbox)(?:-[A-Za-z0-9]+)?(?:\.[A-Za-z0-9-]+)+)(?::\d{1,5})?(?:/[^`"\x27\s<>\\]{0,250})?)(?P=q)'''
+keywords = ["localhost", "127.0.0.1", "0.0.0.0", "10.", "192.168.", "172.", ".internal", ".local", ".corp", ".lan", "staging", "stage", "uat", "dev", "test", "qa", "preprod", "sandbox"]
+
+[[rules]]
+id = "s3-bucket"
+kind = "infra"
+category = "cloud-storage"
+description = "Bucket Amazon S3"
+severity = "low"
+regex = '''(?P<url>[a-z0-9][a-z0-9.\-]{2,62}\.s3(?:[.-][a-z0-9-]+)?\.amazonaws\.com|s3(?:[.-][a-z0-9-]+)?\.amazonaws\.com/[a-z0-9][a-z0-9.\-]{2,62})'''
+keywords = ["amazonaws.com"]
+
+[[rules]]
+id = "gcs-bucket"
+kind = "infra"
+category = "cloud-storage"
+description = "Bucket Google Cloud Storage"
+severity = "low"
+regex = '''(?P<url>storage\.googleapis\.com/[a-z0-9][a-z0-9._\-]{2,62}|[a-z0-9][a-z0-9._\-]{2,62}\.storage\.googleapis\.com)'''
+keywords = ["storage.googleapis.com"]
+
+[[rules]]
+id = "azure-blob"
+kind = "infra"
+category = "cloud-storage"
+description = "Azure Blob Storage"
+severity = "low"
+regex = '''(?P<url>[a-z0-9]{3,24}\.blob\.core\.windows\.net(?:/[A-Za-z0-9._\-]{1,63})?)'''
+keywords = ["blob.core.windows.net"]
+
+[[rules]]
+id = "firebase-database"
+kind = "infra"
+category = "cloud-storage"
+description = "Firebase Realtime Database (verifica se e' leggibile senza auth)"
+severity = "medium"
+confidence = "medium"
+regex = '''(?P<url>[a-z0-9-]{3,40}(?:-default-rtdb)?\.(?:[a-z0-9-]+\.)?firebaseio\.com)'''
+keywords = ["firebaseio.com"]
+
+[[rules]]
+id = "graphql-operation"
+kind = "graphql"
+category = "graphql"
+description = "Operazioni GraphQL (query/mutation/subscription con nome)"
+confidence = "medium"
+regex = '''\b(?P<method>query|mutation|subscription)\s+(?P<url>[A-Za-z_]\w{2,60})\s*(?:\([^)]{0,300}\))?\s*\{'''
+keywords = ["query", "mutation", "subscription"]
+
+[[rules]]
+id = "path-generic"
+kind = "endpoint"
+aggressive = true
+confidence = "low"
+description = "Qualsiasi percorso con almeno 2 segmenti (rumoroso: solo con --aggressive)"
+regex = '''(?P<q>[`"\x27])(?P<url>/(?:[\w\-.~%{}$:]+/)+[\w\-.~%{}$:]+(?:\?[^`"\x27\s<>\\]{0,200})?)(?P=q)'''
+keywords = ["/"]
