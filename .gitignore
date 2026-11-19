@@ -2,3 +2,5 @@
 js_downloads/
 sites.txt
 __pycache__/
+venv/
+rules/
